@@ -46,19 +46,18 @@ int main(int argc, char* argv[]){
 	} else if(const char* task_id_env = std::getenv("SLURM_ARRAY_TASK_ID")){
 		mpi_rank = std::stoi(task_id_env); mpi_size = mpi_rank + 1;
 	}
-	divdiff_init(); divdiff dd(q+4,500); d=&dd; init_rng();
+	divdiff_init(); divdiff dd(q+4,500); d=&dd; init_rng(); start_time = get_cpu_time();
 	if(check_QMC_data()){
 		load_QMC_data(); init_basic();
 	} else{
-		start_time = get_cpu_time(); int fixed = 0;
+		int fixed = 0;
 		while(get_cpu_time()-start_time < MAX_FIX_TIME) if(fix_cycles()){ fixed = 1; break; }
 #ifndef WORM_UPDATE
 		if(!fixed) cout << endl << "Warning: some of the cycles have zero weight across the board. An attempt to automatically fix this was unsuccessful." << endl << endl;
 #endif
-		init();
+		init(); start_time = get_cpu_time();
 		std::cout << "RNG seed = " << rng_seed << std::endl;
 	}
-	start_time = get_cpu_time();
 	std::cout << "Parameters: beta = " << beta << ", Tsteps = " << Tsteps << ", steps = " << steps << std::endl;
 	if(TstepsFinished){
 		if(step>0 && step<stepsPerMeasurement && measurement_step<measurements){
